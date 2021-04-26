@@ -1,10 +1,20 @@
-import React from 'react'
-import { View, Text } from 'react-native'
+import React, {useContext} from 'react'
+import { View, Text, FlatList } from 'react-native'
+import PostCard from '../components/PostCard'
+import { DataContext } from '../services/dataContext'
 
 const Feed = () =>{
+    const { posts } = useContext(DataContext)
     return(
         <View>
-            <Text>Feed :)</Text>
+            <FlatList
+                data = {posts}
+                keyExtractor={post=>post.id}
+                renderItem = {(post) => (
+                    <PostCard post = {post}/>
+                )}
+            />
+            <PostCard/>
         </View>
     )
 }
