@@ -3,7 +3,7 @@ import { View, Text, FlatList } from 'react-native'
 import PostCard from '../components/PostCard'
 import { DataContext } from '../services/dataContext'
 
-const Feed = () =>{
+const Feed = ({navigation}) =>{
     const { posts } = useContext(DataContext)
     return(
         <View>
@@ -11,7 +11,10 @@ const Feed = () =>{
                 data = {posts}
                 keyExtractor={post=>post.id}
                 renderItem = {(post) => (
-                    <PostCard post = {post}/>
+                    <PostCard 
+                        post = {post}
+                        navigation = {navigation}
+                    />
                 )}
             />
             <PostCard/>

@@ -2,19 +2,21 @@ import React from 'react'
 import { View, Text, Image, StyleSheet } from 'react-native'
 
 const PostCard = (props) => {
-    console.log(props.post?.item)
     const post = props.post?.item
+    const onPressHandler = () => {
+        props.navigation.navigate("Profile")
+    }
     return(
         <View style = {styles.container}>
             <View style = {styles.header}>
                 <Image style = {styles.headerProfilePicture} source = {{uri: `${post?.user.picture}`}} />
-                <Text style = {styles.headerUsername}>{post?.user.name}</Text>
+                <Text style = {styles.headerUsername} onPress={onPressHandler}>{post?.user.name}</Text>
             </View>
             <Image style = {styles.post} source = {{uri: `${post?.image}` }}/>
             <View style = {styles.descriptionContainer}>
                 <View style = {styles.descriptionsButton}></View>
                 <Text style = {styles.descriptionLikes}>{post?.likes} J'aime</Text>
-                <Text style = {styles.descrptionUsername}>{post?.user.name}</Text>
+                <Text style = {styles.descrptionUsername} onPress={onPressHandler}>{post?.user.name}</Text>
                 <Text style = {styles.descriptionText}>{post?.description}</Text>
             </View>
         </View>
