@@ -4,9 +4,9 @@ import Icon from 'react-native-vector-icons/FontAwesome'
 
 import CreatePost from '../screens/CreatePost';
 import Notifications from '../screens/Notifications';
-import Profile from '../screens/Profile';
 import Research from '../screens/Research';
 import feedStackNavigator from './stack/feedStackNavigator';
+import User from '../screens/User';
 
 const TabNavigator = () => {
     const Tab = createBottomTabNavigator();
@@ -28,7 +28,7 @@ const TabNavigator = () => {
                     <Icon name='plus' size={25} color={color}/>
                 )
             }}/>
-            <Tab.Screen name='Profile' component={Profile} options={{
+            <Tab.Screen name='User' component={User} options={{
                 tabBarIcon: ({color}) => (
                     <Icon name='user' size={25} color={color}/>
                 )
