@@ -4,7 +4,7 @@ import { View, Text, Image, StyleSheet } from 'react-native'
 const PostCard = (props) => {
     const post = props.post?.item
     const onPressHandler = () => {
-        props.navigation.navigate("Profile")
+        props.navigation.navigate("Profile", {userName: post?.user.name, profilePicture: post?.user.picture, id: post?.user.id})
     }
     return(
         <View style = {styles.container}>
