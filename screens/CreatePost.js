@@ -1,62 +1,177 @@
-import React, {useState} from 'react'
-import { View, Text, Button, Image, StyleSheet, TextInput } from 'react-native'
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import React, {useState, useContext} from 'react';
+import {
+  View,
+  Text,
+  Platform,
+  StyleSheet,
+  Alert,
+  ActivityIndicator,
+} from 'react-native';
+import ActionButton from 'react-native-action-button';
+import Icon from 'react-native-vector-icons/Ionicons';
+import ImagePicker from 'react-native-image-crop-picker';
 
-const CreatePost = () => {
-    const [response, setResponse] = useState(null)
-    const [description, setDescription] = useState('')
-    return(
-        <View style={styles.container}>
-            <TextInput
-                style={styles.description}
-                onChangeText={setDescription}
-                value={description}
-            />
-            {response &&(<Image source = {{uri: `${response.uri}`}} style={styles.picture} />)}
-            <View style = {styles.pictureButtons}>
-                <Button title='Gallerie' style = {styles.button}  onPress={() => {
-                    launchImageLibrary({mediaType: 'photo'}, (response) => {
-                        setResponse(response)
-                    })
-                }} />
-                <Button title='Prendre une photo' style = {styles.button} onPress={() => {
-                    launchCamera({mediaType: 'photo'}, (response) => {
-                        setResponse(response)
-                    })
-                }} />
-            </View>
-            <Button title='Poster'/>
-            
-            
-            
-        </View>
-    )
-}
+import storage from '@react-native-firebase/storage';
+import firestore from '@react-native-firebase/firestore';
+
+import {
+  InputField,
+  InputWrapper,
+  AddImage,
+  SubmitBtn,
+  SubmitBtnText,
+  StatusWrapper,
+} from '../styles/AddPost';
+import {AuthContext} from '../navigation/AuthProvider';
+
+const AddPostScreen = () => {
+  const {user} = useContext(AuthContext);
+  const [image, setImage] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [transferred, setTransferred] = useState(0);
+  const [post, setPost] = useState(null);
+
+  const takePhotoFromCamera = () => {
+    ImagePicker.openCamera({
+      width: 1200,
+      height: 780,
+      cropping: true,
+    }).then(image => {
+      console.log(image);
+      const imageUri = Platform.OS === 'ios' ? image.sourceURL : image.path;
+      setImage(imageUri);
+    });
+  };
+
+  const choosePhotoFromLibrary = () => {
+    ImagePicker.openPicker({
+      width: 1200,
+      height: 780,
+      cropping: true,
+    }).then(image => {
+      console.log(image);
+      const imageUri = image.path;
+      setImage(imageUri);
+    });
+  };
+
+  const submitPost = async () => {
+    const imageUrl = await uploadImage();
+    console.log('Image Url : ', imageUrl);
+
+    firestore()
+      .collection('user_post')
+      .add({
+        userId: user.uid,
+        message: post,
+        picture: imageUrl,
+        createdAt: firestore.Timestamp.fromDate(new Date()),
+        likes: null,
+      })
+      .then(() => {
+        console.log('Post added !');
+        Alert.alert(
+          'Post published !',
+          'Your post has been published successfully !',
+        );
+        setPost(null);
+      })
+      .catch(error => {
+        console.log('Something went wrong with added post to firestore.');
+      });
+  };
+
+  const uploadImage = async () => {
+    const uploadUri = image;
+    let filename = uploadUri.substring(uploadUri.lastIndexOf('/') + 1);
+
+    const extension = filename.split('.').pop();
+    const name = filename.split('.').slice(0, -1).join('.');
+    filename = name + Date.now() + '.' + extension;
+
+    setUploading(true);
+    setTransferred(0);
+
+    const storageRef = storage().ref(`photos/${filename}`);
+    const task = storageRef.putFile(uploadUri);
+
+    task.on('state_changed', taskSnapshot => {
+      console.log(
+        `${taskSnapshot.bytesTransferred} transferred out of ${taskSnapshot.totalBytes}`,
+      );
+      setTransferred(
+        Math.round(
+          (taskSnapshot.bytesTransferred / taskSnapshot.totalBytes) * 100,
+        ),
+      );
+    });
+    try {
+      await task;
+
+      const url = await storageRef.getDownloadURL();
+
+      setUploading(false);
+      setImage(false);
+
+      return url;
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      <InputWrapper>
+        {image != null ? <AddImage source={{uri: image}} /> : null}
+
+        <InputField
+          placeholder="What's on your mind?"
+          multiline
+          numberOfLines={4}
+          value={post}
+          onChangeText={content => setPost(content)}
+        />
+        {uploading ? (
+          <StatusWrapper>
+            <Text>{transferred} % Completed!</Text>
+            <ActivityIndicator size="large" color="#0000ff" />
+          </StatusWrapper>
+        ) : (
+          <SubmitBtn onPress={submitPost}>
+            <SubmitBtnText>Post</SubmitBtnText>
+          </SubmitBtn>
+        )}
+      </InputWrapper>
+      <ActionButton buttonColor="#2e64e5">
+        <ActionButton.Item
+          buttonColor="#9b59b6"
+          title="Take Photo"
+          onPress={takePhotoFromCamera}>
+          <Icon name="camera-outline" style={styles.actionButtonIcon} />
+        </ActionButton.Item>
+        <ActionButton.Item
+          buttonColor="#3498db"
+          title="Choose Photo"
+          onPress={choosePhotoFromLibrary}>
+          <Icon name="md-images-outline" style={styles.actionButtonIcon} />
+        </ActionButton.Item>
+      </ActionButton>
+    </View>
+  );
+};
+
+export default AddPostScreen;
 
 const styles = StyleSheet.create({
-    container: {
-        flexDirection: 'column',
-        justifyContent: 'flex-start',
-        margin: 12
-    },
-    description: {
-        height: 80,
-        borderWidth: 1,
-    },
-    picture: {
-        marginTop: 12,
-        width:368,
-        height: 368
-    },
-    pictureButtons: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginVertical: 10
-    },
-    button: {
-        height: 40,
-        margin: 10
-    }
-})
-
-export default CreatePost
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  actionButtonIcon: {
+    fontSize: 20,
+    height: 22,
+    color: 'white',
+  },
+});
