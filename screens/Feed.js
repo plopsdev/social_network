@@ -17,7 +17,6 @@ const Feed = ({navigation}) =>{
                     />
                 )}
             />
-            <PostCard/>
         </View>
     )
 }

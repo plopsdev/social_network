@@ -33,4 +33,5 @@ const fakeData = [
         description: "Figurine sympa"
     }
 ]
+
 export default fakeData
