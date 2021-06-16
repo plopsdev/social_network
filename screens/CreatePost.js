@@ -30,6 +30,12 @@ const AddPostScreen = () => {
   const [uploading, setUploading] = useState(false);
   const [transferred, setTransferred] = useState(0);
   const [post, setPost] = useState(null);
+  let randomId = () => {
+    return Math.floor((1 + Math.random()) * 0x10000)
+      .toString(16)
+      .substring(1);
+  };
+  const postId = randomId();
 
   const takePhotoFromCamera = () => {
     ImagePicker.openCamera({
@@ -62,6 +68,7 @@ const AddPostScreen = () => {
     firestore()
       .collection('user_post')
       .add({
+        postId: postId,
         userId: user.uid,
         message: post,
         picture: imageUrl,
@@ -79,6 +86,29 @@ const AddPostScreen = () => {
       .catch(error => {
         console.log('Something went wrong with added post to firestore.');
       });
+
+    await createNotification();
+  };
+
+  const createNotification = async () => {
+    const snapshot = await firestore()
+      .collection('user_follower')
+      .where('profileId', '==', user.uid)
+      .get();
+
+    if (snapshot.empty) {
+      console.log('No matching documents.');
+      return;
+    }
+
+    snapshot.forEach(doc => {
+      if (user.uid === doc.data().profileId) {
+        firestore().collection('user_notification').add({
+          userId: user.uid,
+          postId: postId,
+        });
+      }
+    });
   };
 
   const uploadImage = async () => {

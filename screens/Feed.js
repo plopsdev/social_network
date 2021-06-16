@@ -3,7 +3,7 @@ import {View, Text, FlatList} from 'react-native';
 import PostCard from '../components/PostCard';
 import {DataContext} from '../services/dataContext';
 import firestore from '@react-native-firebase/firestore';
-import { AuthContext } from "../navigation/AuthProvider";
+import {AuthContext} from '../navigation/AuthProvider';
 
 const Feed = ({navigation}) => {
   const {user} = useContext(AuthContext);
@@ -30,10 +30,10 @@ const Feed = ({navigation}) => {
                     'https://www.puttyandpaint.com/images/uploads/artistworks/18560/cache/foto_mago1__sized_center_m.jpg',
                 },
                 createdAt,
-                message,
-                picture,
+                description: message,
+                image: picture,
                 liked: false,
-                likes,
+                likes: likes,
               });
             });
           });
