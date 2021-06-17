@@ -51,7 +51,6 @@ const Feed = ({navigation}) => {
     useEffect(() => {
         getSubscribedPosts();
     }, []);
-    console.log(posts)
     const likePost = async (postId) => {
         firestore()
         .collection('post_like')

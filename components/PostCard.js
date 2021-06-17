@@ -5,7 +5,6 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 
 const PostCard = props => {
 
-    
     const post = props.post?.item;
     const [isLiked, setLiked] = useState(post?.liked)
     const onPressHandler = () => {
