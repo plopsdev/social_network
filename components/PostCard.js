@@ -21,11 +21,13 @@ const PostCard = props => {
           {post?.user.name}
         </Text>
       </View>
-      <Image style={styles.post} source={{uri: post?.image}} />
-      <View style={styles.descriptionContainer}>
-        <View style={styles.descriptionsButton} />
+      <View style={styles.postView}>
+        <Image style={styles.post} source={{uri: post?.image}} />
+      </View>
+      <View style={styles.description}>
+        <View style={styles.descriptionButtons} />
         <Text style={styles.descriptionLikes}>{post?.likes} J'aime</Text>
-        <Text style={styles.descrptionUsername} onPress={onPressHandler}>
+        <Text style={styles.descriptionUsername} onPress={onPressHandler}>
           {post?.user.name}
         </Text>
         <Text style={styles.descriptionText}>{post?.description}</Text>
@@ -37,11 +39,20 @@ const PostCard = props => {
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'column',
-    justifyContent: 'space-between',
+    marginHorizontal: 12,
+    marginVertical: 8,
+    backgroundColor: '#e1e1e1',
+  },
+  postView: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   header: {
     flexDirection: 'row',
+    marginVertical: 12,
+    marginHorizontal: 8,
     justifyContent: 'flex-start',
+    alignItems: 'center',
   },
   headerProfilePicture: {
     width: 40,
@@ -49,16 +60,20 @@ const styles = StyleSheet.create({
     borderRadius: 40 / 2,
   },
   headerUsername: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: 'bold',
+    marginLeft: 8,
   },
   post: {
     width: 400,
     height: 400,
+    resizeMode: 'cover',
   },
   description: {
     flexDirection: 'column',
     justifyContent: 'flex-start',
+    marginVertical: 8,
+    marginHorizontal: 12,
   },
   descriptionButtons: {
     flexDirection: 'row',
@@ -67,8 +82,9 @@ const styles = StyleSheet.create({
   descriptionLikes: {
     fontSize: 14,
     fontWeight: 'bold',
+    marginVertical: 6,
   },
-  descrptionUsername: {
+  descriptionUsername: {
     fontSize: 14,
     fontWeight: 'bold',
   },

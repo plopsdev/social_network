@@ -47,7 +47,9 @@ const Profile = ({route}) => {
           />
           <Text style={styles.headerProfileName}>{userName}</Text>
         </View>
-        <Button title="S'abonner" />
+        <View style={styles.subscribeButton}>
+          <Button title="S'abonner" />
+        </View>
       </View>
     </View>
   );
@@ -63,6 +65,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginHorizontal: 12,
+    marginVertical: 8,
+    backgroundColor: '#e1e1e1',
+    borderRadius: 10,
   },
   headerProfile: {
     flexDirection: 'row',
@@ -73,10 +79,15 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 100 / 2,
+    margin: 10,
   },
   headerProfileName: {
     fontSize: 20,
     fontWeight: 'bold',
+  },
+  subscribeButton: {
+    margin: 10,
+    width: 100,
   },
 });
 
