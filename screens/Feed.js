@@ -51,28 +51,61 @@ const Feed = ({navigation}) => {
     useEffect(() => {
         getSubscribedPosts();
     }, []);
-    const likePost = async (postId) => {
+
+    const likePost = async (post) => {
         firestore()
         .collection('post_like')
         .add({
-            postId: postId,
+            postId: post.id,
             userId: user.uid,
         })
         .then(() => {
-            console.log('Post liked !');
+            firestore()
+            .collection('user_post')
+            .doc(post.id)
+            .update({
+                likes: post.likes + 1,
+            })
+            .then(() => {
+                console.log('Post liked!');
+            });
         })
         .catch(error => {
             console.log('Something went wrong with liking post.');
         });
     };
 
+    const dislikePost = async post => {
+        firestore()
+            .collection('post_like')
+            .where('userId', '==', user.uid)
+            .where('postId', '==', post.id)
+            .get()
+            .then(querySnapshot => {
+                firestore()
+                .collection('post_like')
+                .doc(querySnapshot.docs[0].id)
+                .delete()
+                .then(
+                    firestore()
+                    .collection('user_post')
+                    .doc(post.id)
+                    .update({
+                        likes: post.likes,
+                    })
+                )
+                .then(() => {
+                    console.log('Post unliked!');
+                });
+            });
+      };
 
     return (
         <View>
             <FlatList
                 data={posts}
                 keyExtractor={post => post.id}
-                renderItem={post => <PostCard post={post} navigation={navigation} likePost = {likePost}/>}
+                renderItem={post => <PostCard post={post} navigation={navigation} likePost = {likePost} dislikePost = {dislikePost}/>}
                 showsVerticalScrollIndicator={false}
                 
             />
