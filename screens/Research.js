@@ -1,28 +1,32 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, FlatList} from 'react-native';
-import firestore from '@react-native-firebase/firestore';
-import PostCard from '../components/PostCard';
 import {
-  Body,
+  Image,
+  Text,
   Container,
+  TextInput,
+  StyleSheet,
   Content,
+  FlatList,
   Header,
   Icon,
   Input,
   Item,
-  Left,
   ListItem,
-  Thumbnail,
-} from 'native-base';
+  View,
+} from 'react-native';
+import firestore from '@react-native-firebase/firestore';
+import PostCard from '../components/PostCard';
+import {Body, Thumbnail} from 'native-base';
 
 const Research = ({navigation}) => {
-  const [results, setResults] = useState(null);
+  const [results, setResults] = useState([]);
+  const [searchInput, setSearchInput] = useState('');
 
   const searchUser = async textToSearch => {
     const list = [];
     await firestore()
       .collection('user')
-      .where('name', '==', 'Paul')
+      .where('name', '==', textToSearch)
       .get()
       .then(querySnapshot => {
         querySnapshot.forEach(doc => {
@@ -37,40 +41,48 @@ const Research = ({navigation}) => {
         });
       });
     setResults(list);
-    console.log('-------');
-    console.log(results);
+  };
+  const onPressHandler = profile => {
+    console.log(profile);
+    navigation.navigate('Profile', {
+      userName: profile.name,
+      profilePicture: profile.picture,
+      id: profile.id,
+    });
   };
 
   useEffect(() => {
-    searchUser();
-  }, []);
-
+    searchUser(searchInput);
+  }, [searchInput]);
+  // console.log(results.length)
   return (
-    <Container>
-      <Header searchBar rounded>
-        <Item>
-          <Icon name="search" />
-          <Input
-            placeholder="Rechercher un utilisateur"
-            onChangeText={text => searchUser(text)}
-          />
-        </Item>
-      </Header>
-      <Content>
-        <FlatList
-          data={results}
-          keyExtractor={result => result.id}
-          renderItem={({result}) => (
-            <ListItem
-              roundAvatar
-              title={`${result.name}`}
-              avatar={{uri: result.picture}}
-            />
-          )}
-          showsVerticalScrollIndicator={false}
-        />
-      </Content>
-    </Container>
+    <View style={styles.container}>
+      <TextInput
+        onChangeText={text => setSearchInput(text)}
+        placeholder="Cherchez un utilisateur"
+      />
+      <FlatList
+        data={results}
+        renderItem={({item}) => (
+          <View style={styles.searchItemContainer}>
+            <Image style={styles.profilePicture} source={{uri: item.picture}} />
+            <Text onPress={() => onPressHandler(item)}>{item.name}</Text>
+          </View>
+        )}
+      />
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  searchItemContainer: {
+    flexDirection: 'row',
+  },
+  profilePicture: {
+    width: 40,
+    height: 40,
+    borderRadius: 40 / 2,
+  },
+});
+
 export default Research;

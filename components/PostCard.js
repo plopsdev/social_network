@@ -1,8 +1,12 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {View, Text, Image, StyleSheet} from 'react-native';
+
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 const PostCard = props => {
   const post = props.post?.item;
+  const [isLiked, setLiked] = useState(post?.liked);
+  const [likes, setLikes] = useState(post?.likes);
   const onPressHandler = () => {
     props.navigation.navigate('Profile', {
       userName: post?.user.name,
@@ -10,6 +14,18 @@ const PostCard = props => {
       id: post?.user.id,
     });
   };
+  const onLikeHandler = () => {
+    if (isLiked) {
+      setLikes(likes - 1);
+      props.dislikePost(post);
+      setLiked(false);
+    } else {
+      setLikes(likes + 1);
+      props.likePost(post);
+      setLiked(true);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -25,8 +41,15 @@ const PostCard = props => {
         <Image style={styles.post} source={{uri: post?.image}} />
       </View>
       <View style={styles.description}>
-        <View style={styles.descriptionButtons} />
-        <Text style={styles.descriptionLikes}>{post?.likes} J'aime</Text>
+        <View style={styles.likesContainer}>
+          <Icon
+            name="heart"
+            size={25}
+            color={isLiked ? '#D60000' : '#A5A8AC'}
+            onPress={onLikeHandler}
+          />
+          <Text style={styles.descriptionLikes}>{likes} J'aime</Text>
+        </View>
         <Text style={styles.descriptionUsername} onPress={onPressHandler}>
           {post?.user.name}
         </Text>
@@ -82,6 +105,7 @@ const styles = StyleSheet.create({
   descriptionLikes: {
     fontSize: 14,
     fontWeight: 'bold',
+    marginLeft: 10,
     marginVertical: 6,
   },
   descriptionUsername: {
